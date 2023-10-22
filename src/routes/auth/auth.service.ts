@@ -8,6 +8,7 @@ export class AuthService {
   constructor (private prisma: PrismaService) {}
 
   async createUser (data: CreateUserDto) {
-    return formatResultForResponseInterceptor(data, 'User was created successfully!');
+    const res = formatResultForResponseInterceptor(data, 'User was created successfully!');
+    return new Promise(resolve => setTimeout(() => resolve(res), 1000));
   }
 }

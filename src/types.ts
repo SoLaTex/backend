@@ -1,9 +1,9 @@
-export type ResponseFormat = {
-  data: any;
+export type ResponseFormat <T = any> = {
+  data: T;
   message: string;
 };
 
-export type ResponseInterceptorFormat = ResponseFormat & {
+export type ResponseInterceptorFormat<T = any> = ResponseFormat<T> & {
   status: number;
   timestamp: number;
 };

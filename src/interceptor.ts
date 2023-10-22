@@ -4,12 +4,12 @@ import {
   NestInterceptor,
 } from "@nestjs/common";
 import { catchError, map, Observable, throwError } from "rxjs";
-import type { ResponseFormat, ResponseInterceptorFormat } from "../types";
+import type { ResponseFormat, ResponseInterceptorFormat } from "./types";
 
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000);
 
 @Injectable()
-export class FormatResponseInterceptor implements NestInterceptor {
+export class Interceptor implements NestInterceptor {
   intercept (context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map<ResponseFormat, ResponseInterceptorFormat>((data) => {
