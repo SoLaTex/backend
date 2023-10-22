@@ -18,6 +18,7 @@ model User {
   username String @unique
   password String
   tokens Token[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -27,6 +28,8 @@ model Token {
   token String @unique
   userId String
   user User @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -9,6 +9,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import * as bcrypt from "bcrypt";
 import config from "../../config";
 import { LoginUserDto } from "./dtos/LoginUser.dto";
+import dayjs from "dayjs";
 
 @Injectable()
 export class AuthService {
@@ -44,6 +45,12 @@ export class AuthService {
     return !!user;
   }
 
+  private async _createToken(userId: string) {
+    const token = this.jwtService.sign({ id: userId });
+    await this.prisma.token.create({ data: { token, userId, expiresAt: dayjs().add(30, 'days').toDate() } });
+    return token;
+  }
+
   async createUser (data: CreateUserDto) {
     const emailExists = await this._checkIfEmailExists(data.email);
     if (emailExists) {
@@ -66,10 +73,9 @@ export class AuthService {
       { data: { ...data, password: hash } },
     );
 
-    return formatResultForResponseInterceptor(
-      res,
-      "User was created successfully!",
-    );
+    const token = await this._createToken(res.id);
+
+    return formatResultForResponseInterceptor({ token }, "User Created Successfully!")
   }
 
   async getUser (id: string) {
@@ -97,8 +103,7 @@ export class AuthService {
       throw new UnauthorizedException(res);
     }
 
-    const token = this.jwtService.sign({ id: user.id });
-    await this.prisma.token.create({ data: { token, userId: user.id } });
+    const token = await this._createToken(user.id);
 
     return formatResultForResponseInterceptor({ token }, "User Logged In Successfully!")
   }

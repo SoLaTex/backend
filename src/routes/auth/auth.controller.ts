@@ -18,7 +18,6 @@ export class AuthController {
   }
 
   @Post("/register")
-  @Serialize(UserEntity)
   async register (@Body() body: CreateUserDto) {
     return this.authService.createUser(body);
   }
