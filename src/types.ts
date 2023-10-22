@@ -7,3 +7,8 @@ export type ResponseInterceptorFormat<T = any> = ResponseFormat<T> & {
   status: number;
   timestamp: number;
 };
+
+export type CurrentUserType = {
+  id: string;
+  token: string;
+};

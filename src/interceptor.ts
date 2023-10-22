@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  CallHandler, ExecutionContext, Injectable,
+  CallHandler, ExecutionContext, HttpException, Injectable,
   NestInterceptor,
 } from "@nestjs/common";
 import { catchError, map, Observable, ObservableInput, throwError } from "rxjs";
@@ -22,7 +22,7 @@ export class Interceptor implements NestInterceptor {
         };
       }),
       catchError((error) => {
-        if (error instanceof BadRequestException) {
+        if (error instanceof HttpException) {
           const data = error.getResponse() as ResponseFormat;
 
           const response = {
@@ -32,7 +32,7 @@ export class Interceptor implements NestInterceptor {
             timestamp: getUnixTimestamp(),
           };
 
-          return throwError(() => new BadRequestException(response));
+          return throwError(() => new HttpException(response, error.getStatus()));
         }
 
         return throwError(() => error);

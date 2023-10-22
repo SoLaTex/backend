@@ -8,6 +8,7 @@ declare global {
       DB_NAME: string;
       DB_USER: string;
       DB_PASSWORD: string;
+      JWT_SECRET: string;
 
       DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public";
     }

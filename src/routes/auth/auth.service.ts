@@ -1,12 +1,18 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma.service";
+import {
+  BadRequestException, Injectable, UnauthorizedException,
+} from "@nestjs/common";
 import { CreateUserDto } from "./dtos/CreateUser.dto";
 import { formatResultForResponseInterceptor } from "../../helpers/functions";
 import { UpdateUserDto } from "./dtos/UpdateUser.dto";
+import { JwtService } from "@nestjs/jwt";
+import { PrismaService } from "../../prisma/prisma.service";
+import * as bcrypt from "bcrypt";
+import config from "../../config";
+import { LoginUserDto } from "./dtos/LoginUser.dto";
 
 @Injectable()
 export class AuthService {
-  constructor (private prisma: PrismaService) {}
+  constructor (private prisma: PrismaService, private jwtService: JwtService) {}
 
   // private _handlePrismaError (error: Prisma.PrismaClientKnownRequestError) {
   //   switch (error.code) {
@@ -53,14 +59,22 @@ export class AuthService {
       throw new BadRequestException(res);
     }
 
-    const res = await this.prisma.user.create({ data });
+    const password = data.password;
+    const hash = await bcrypt.hash(password, config.bcryptSaltRounds);
 
-    return formatResultForResponseInterceptor(res, "User was created successfully!");
+    const res = await this.prisma.user.create(
+      { data: { ...data, password: hash } },
+    );
+
+    return formatResultForResponseInterceptor(
+      res,
+      "User was created successfully!",
+    );
   }
 
-  async getUser(id: string) {
+  async getUser (id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if(!user) {
+    if (!user) {
       const res = formatResultForResponseInterceptor(null, "User not found!");
       throw new BadRequestException(res);
     }
@@ -68,25 +82,48 @@ export class AuthService {
     return formatResultForResponseInterceptor(user, "User Details");
   }
 
-  async updateUser(id: string, data: UpdateUserDto) {
+  async signInUser ({ username, password }: LoginUserDto) {
+    const ERR_MSG = "Invalid username or password!";
+
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    if (!user) {
+      const res = formatResultForResponseInterceptor(null, ERR_MSG);
+      throw new UnauthorizedException(res);
+    }
+
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    if (!isPasswordValid) {
+      const res = formatResultForResponseInterceptor(null, ERR_MSG);
+      throw new UnauthorizedException(res);
+    }
+
+    const token = this.jwtService.sign({ id: user.id });
+    await this.prisma.token.create({ data: { token, userId: user.id } });
+
+    return formatResultForResponseInterceptor({ token }, "User Logged In Successfully!")
+  }
+
+  async updateUser (id: string, data: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if(!user) {
+    if (!user) {
       const res = formatResultForResponseInterceptor(null, "User not found!");
       throw new BadRequestException(res);
     }
 
     const res = await this.prisma.user.update({ where: { id }, data });
-    return formatResultForResponseInterceptor(res, "User Updated Successfully!");
+    return formatResultForResponseInterceptor(res,
+      "User Updated Successfully!");
   }
 
-  async deleteUser(id: string) {
+  async deleteUser (id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if(!user) {
+    if (!user) {
       const res = formatResultForResponseInterceptor(null, "User not found!");
       throw new BadRequestException(res);
     }
 
     const res = await this.prisma.user.delete({ where: { id } });
-    return formatResultForResponseInterceptor(res, "User Deleted Successfully!");
+    return formatResultForResponseInterceptor(res,
+      "User Deleted Successfully!");
   }
 }
