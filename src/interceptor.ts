@@ -3,7 +3,7 @@ import {
   CallHandler, ExecutionContext, Injectable,
   NestInterceptor,
 } from "@nestjs/common";
-import { catchError, map, Observable, throwError } from "rxjs";
+import { catchError, map, Observable, ObservableInput, throwError } from "rxjs";
 import type { ResponseFormat, ResponseInterceptorFormat } from "./types";
 
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000);
@@ -23,9 +23,11 @@ export class Interceptor implements NestInterceptor {
       }),
       catchError((error) => {
         if (error instanceof BadRequestException) {
+          const data = error.getResponse() as ResponseFormat;
+
           const response = {
-            message: error.message,
-            data: error.getResponse(),
+            message: data.message,
+            data: data.data,
             status: error.getStatus(),
             timestamp: getUnixTimestamp(),
           };

@@ -1,6 +1,6 @@
 import { ResponseFormat } from "../types";
 
-export function formatResultForResponseInterceptor (
-  data: any, message: string): ResponseFormat {
+export function formatResultForResponseInterceptor<T> (
+  data: T, message: string): ResponseFormat<T> {
   return { data, message };
 }
