@@ -11,24 +11,79 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(uuid())
-  email String  @unique
-  firstName  String
-  lastName   String
-  username String @unique
-  password String
-  tokens Token[]
+  id        String @id @default(uuid())
+  email     String @unique
+  firstName String
+  lastName  String
+  username  String @unique
+  password  String
+
+  tokens     Token[]
+  parameters Parameter[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Token {
-  id    String @id @default(uuid())
-  token String @unique
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Parameter {
+  id String @id @default(uuid())
+
+  name        String?
+  description String?
+  outputUnit  String?
+
+  formulas Formula[]
+
+  userId String
+  User   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Formula {
+  id String @id @default(uuid())
+
+  name           String
+  formula        String
+  isFinalFormula Boolean @default(false)
+
+  parameterId String
+  Parameter   Parameter @relation(fields: [parameterId], references: [id])
+
+  symbols Symbol[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum SymbolType {
+  VARIABLE
+  CONSTANT
+  FUNCTION
+}
+
+model Symbol {
+  id String @id @default(uuid())
+
+  formulaId String?
+  formula   Formula? @relation(fields: [formulaId], references: [id])
+
+  symbol      String
+  type        SymbolType @default(VARIABLE)
+  value       Float?
+  description String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

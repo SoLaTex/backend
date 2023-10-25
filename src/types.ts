@@ -1,4 +1,4 @@
-export type ResponseFormat <T = any> = {
+export type ResponseFormat<T = any> = {
   data: T;
   message: string;
 };
@@ -12,3 +12,9 @@ export type CurrentUserType = {
   id: string;
   token: string;
 };
+
+export enum SymbolType {
+  Variable = "variable",
+  Constant = "constant",
+  Function = "function",
+}
