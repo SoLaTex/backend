@@ -39,9 +39,9 @@ model Token {
 model Parameter {
   id String @id @default(uuid())
 
-  name        String?
-  description String?
-  outputUnit  String?
+  name        String
+  description String
+  outputUnit  String
 
   formulas Formula[]
 
@@ -71,7 +71,7 @@ model Formula {
 enum SymbolType {
   VARIABLE
   CONSTANT
-  FUNCTION
+  FORMULA
 }
 
 model Symbol {

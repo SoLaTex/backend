@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   CallHandler, ExecutionContext, HttpException, Injectable,
+  InternalServerErrorException,
   NestInterceptor,
 } from "@nestjs/common";
-import { catchError, map, Observable, ObservableInput, throwError } from "rxjs";
+import { catchError, map, Observable, throwError } from "rxjs";
 import type { ResponseFormat, ResponseInterceptorFormat } from "./types";
 
 const getUnixTimestamp = () => Math.floor(Date.now() / 1000);
@@ -35,7 +35,16 @@ export class Interceptor implements NestInterceptor {
           return throwError(() => new HttpException(response, error.getStatus()));
         }
 
-        return throwError(() => error);
+        console.log({error});
+
+        const response = {
+          message: "Internal server error!",
+          data: null,
+          status: 500,
+          timestamp: getUnixTimestamp(),
+        }
+
+        return throwError(() => new InternalServerErrorException(response));
       }),
     );
   }

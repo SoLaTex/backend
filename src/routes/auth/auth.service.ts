@@ -1,14 +1,14 @@
 import {
   BadRequestException, Injectable, UnauthorizedException,
 } from "@nestjs/common";
-import { CreateUserDto } from "./dtos/CreateUser.dto";
+import { CreateUserDto } from "./dtos/create-user.dto";
 import { formatResultForResponseInterceptor } from "../../helpers/functions";
-import { UpdateUserDto } from "./dtos/UpdateUser.dto";
+import { UpdateUserDto } from "./dtos/update-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../../prisma/prisma.service";
 import * as bcrypt from "bcrypt";
 import config from "../../config";
-import { LoginUserDto } from "./dtos/LoginUser.dto";
+import { LoginUserDto } from "./dtos/login-user.dto";
 import dayjs from "dayjs";
 
 @Injectable()

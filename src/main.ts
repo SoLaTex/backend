@@ -6,19 +6,25 @@ import {
 import {
   Interceptor,
 } from "./interceptor";
+import {
+  formatResultForResponseInterceptor, parseConstraints,
+} from "./helpers/functions";
 
 async function bootstrap () {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({
     exceptionFactory: (errors) => {
       const result = {};
-      errors.forEach((error) => result[error.property] = Object.values(
-        error.constraints)[0]);
+      // console.log({errors: JSON.stringify(errors)});
+      // errors.forEach((error) => result[error.property] = Object.values(
+      //   error.constraints)[0]);
+      parseConstraints(errors, result);
 
-      return new BadRequestException(result);
+      const response = formatResultForResponseInterceptor(result, "Validation failed!")
+
+      return new BadRequestException(response);
     },
     whitelist: true,
-    transform: true,
   }));
   app.useGlobalInterceptors(
     new Interceptor(),

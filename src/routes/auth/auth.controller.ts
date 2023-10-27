@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { CreateUserDto } from "./dtos/CreateUser.dto";
+import { CreateUserDto } from "./dtos/create-user.dto";
 import { AuthService } from "./auth.service";
 import { Serialize } from "../../decorators/serialize.decorator";
-import { UserEntity } from "./entities/UserEntity";
-import { LoginUserDto } from "./dtos/LoginUser.dto";
+import { UserEntity } from "./entities/user.entity";
+import { LoginUserDto } from "./dtos/login-user.dto";
 import { AuthGuard } from "../../guards/auth.guard";
 import { CurrentUser } from "../../decorators/currentUser.decorator";
 import { formatResultForResponseInterceptor } from "../../helpers/functions";

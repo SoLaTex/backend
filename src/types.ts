@@ -14,7 +14,7 @@ export type CurrentUserType = {
 };
 
 export enum SymbolType {
-  Variable = "variable",
-  Constant = "constant",
-  Function = "function",
+  Variable = "VARIABLE",
+  Constant = "CONSTANT",
+  Formula = "FORMULA",
 }
