@@ -20,27 +20,18 @@ export class ParametersController {
     return this.parametersService.create(createParameterDto, userID);
   }
 
-  @Get()
-  @Serialize(ParameterEntity)
-  findAll() {
-    return this.parametersService.findAll();
-  }
-
-  @Get(':id')
-  @Serialize(ParameterEntity)
-  findOne(@Param('id') id: string) {
-    return this.parametersService.findOne(id);
-  }
-
   @Patch(':id')
   @Serialize(ParameterEntity)
   update(@Param('id') id: string, @Body() updateParameterDto: UpdateParameterDto) {
-    return this.parametersService.update(id, updateParameterDto);
+    const handler = async () =>  this.parametersService.update(id, updateParameterDto);
+    return this.parametersService.handleIfIdExists(id, handler);
   }
 
   @Delete(':id')
   @Serialize(ParameterEntity)
   remove(@Param('id') id: string) {
-    return this.parametersService.remove(id);
+    // return this.parametersService.remove(id);
+    const handler = async () =>  this.parametersService.remove(id);
+    return this.parametersService.handleIfIdExists(id, handler);
   }
 }

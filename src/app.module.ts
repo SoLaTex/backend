@@ -4,12 +4,14 @@ import { PrismaService } from "./prisma/prisma.service";
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from "./tasks.service";
 import { ParametersModule } from './routes/parameters/parameters.module';
+import { FunctionsModule } from './routes/functions/functions.module';
 
 @Module({
   imports: [
     AuthModule,
     ScheduleModule.forRoot(),
-    ParametersModule
+    ParametersModule,
+    FunctionsModule
   ],
   providers: [
     TasksService,

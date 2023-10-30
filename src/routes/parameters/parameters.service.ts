@@ -11,6 +11,21 @@ import { formatResultForResponseInterceptor } from "../../helpers/functions";
 export class ParametersService {
   constructor (private prisma: PrismaService) {}
 
+  async handleIfIdExists (id: string, handler: () => any) {
+    const res = await this.prisma.parameter.findUnique({
+      where: { id },
+    });
+
+    if (res) {
+      return handler();
+    } else {
+      return formatResultForResponseInterceptor(
+        null,
+        `Parameter with id ${id} does not exist!`,
+        );
+    }
+  }
+
   async create (createParameterDto: any, userId: string) {
     const res = await this.prisma.parameter.create({
       data: {
@@ -44,7 +59,31 @@ export class ParametersService {
 
   async update (id: string, oldParameterData: UpdateParameterDto) {
     const res = await this.prisma.$transaction(async (tx) => {
-      const updatedResult = await tx.parameter.update({
+      // Get the IDs of the old formulas
+      const oldFormulaIds = oldParameterData.formulas.map(formula => formula.id).filter(id => !!id);
+
+      // Find the formulas that are not included in the update operation
+      const formulasToDelete = await tx.formula.findMany({
+        where: {
+          id: {
+            notIn: oldFormulaIds,
+          },
+        },
+      });
+
+      // Delete the formulas that are not included in the update operation
+      if (formulasToDelete.length > 0) {
+        await tx.formula.deleteMany({
+          where: {
+            id: {
+              in: formulasToDelete.map(formula => formula.id),
+            },
+          },
+        });
+      }
+
+
+      return tx.parameter.update({
         where: { id },
         data: {
           name: oldParameterData.name,
@@ -101,34 +140,6 @@ export class ParametersService {
           },
         },
       });
-
-      // Get the updated formulas
-      const updatedFormulas = updatedResult.formulas;
-
-      // Get the IDs of the updated formulas
-      const updatedFormulaIds = updatedFormulas.map(formula => formula.id);
-
-      // Find the formulas that are not included in the update operation
-      const formulasToDelete = await tx.formula.findMany({
-        where: {
-          id: {
-            notIn: updatedFormulaIds,
-          },
-        },
-      });
-
-      // Delete the formulas that are not included in the update operation
-      if (formulasToDelete.length > 0) {
-        await tx.formula.deleteMany({
-          where: {
-            id: {
-              in: formulasToDelete.map(formula => formula.id),
-            },
-          },
-        });
-      }
-
-      return updatedResult;
     });
 
     return formatResultForResponseInterceptor(
