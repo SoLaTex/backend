@@ -1,6 +1,8 @@
-import { Body, Controller, Get } from "@nestjs/common";
+import { Body, Controller, Get, UseGuards } from "@nestjs/common";
 import { FunctionsService } from "./functions.service";
+import { AuthGuard } from "../../guards/auth.guard";
 
+@UseGuards(AuthGuard)
 @Controller('functions')
 export class FunctionsController {
   constructor (private readonly functionsService: FunctionsService) {}
